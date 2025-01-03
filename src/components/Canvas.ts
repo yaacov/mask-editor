@@ -9,7 +9,8 @@ export class CanvasComponent extends LitElement {
   @property({ type: Number }) height = 500;
   @property({ type: String }) backgroundImage = '';
   @property({ type: Number }) alpha = 1.0;
-  @property({ type: String }) mode: 'draw' | 'delete' = 'draw';
+  @property({ type: String }) mode: 'draw' | 'delete' | 'fill' | 'line' =
+    'draw';
   @property({ type: String }) image = '';
   @property({ type: String }) private filename = 'mask-image';
   @property({ type: Number }) scale = 1.0;
@@ -19,7 +20,11 @@ export class CanvasComponent extends LitElement {
   private lastX: number = 0;
   private lastY: number = 0;
   private history: ImageData[] = [];
-  private maxHistoryLength = 10; // Limit history to prevent memory issues
+  private maxHistoryLength = 20; // Limit history to prevent memory issues
+  private startX: number = 0;
+  private startY: number = 0;
+  private tempCanvas: HTMLCanvasElement | null = null;
+  private originalState: ImageData | null = null;
 
   static styles = css`
     :host {
@@ -61,6 +66,18 @@ export class CanvasComponent extends LitElement {
           16 16,
         crosshair;
     }
+    canvas.filling {
+      cursor:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M16,8 L20,12 L12,20 L8,16 Z" fill="none" stroke="black" stroke-width="2"/><path d="M20,20 L24,16 L20,24 Z" fill="black"/></svg>')
+          16 16,
+        crosshair;
+    }
+    canvas.line {
+      cursor:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><line x1="8" y1="8" x2="24" y2="24" stroke="black" stroke-width="2"/><circle cx="16" cy="16" r="1" fill="black"/></svg>')
+          16 16,
+        crosshair;
+    }
   `;
 
   firstUpdated() {
@@ -72,6 +89,10 @@ export class CanvasComponent extends LitElement {
         this.initImage();
       }
     }
+
+    this.tempCanvas = document.createElement('canvas');
+    this.tempCanvas.width = this.width;
+    this.tempCanvas.height = this.height;
 
     // Add keyboard event listener for Ctrl+Z
     window.addEventListener('keydown', (e) => {
@@ -176,35 +197,111 @@ export class CanvasComponent extends LitElement {
   }
 
   handleMouseDown(e: MouseEvent) {
-    // Save the current state before starting a new stroke
-    this.saveToHistory();
-
-    this.isDrawing = true;
     const canvas = this.renderRoot.querySelector('canvas') as HTMLCanvasElement;
-    canvas?.classList.add(this.mode === 'draw' ? 'drawing' : 'deleting');
     const rect = canvas.getBoundingClientRect();
     // Adjust coordinates for scale
-    this.lastX = e.clientX / this.scale - rect.left / this.scale;
-    this.lastY = e.clientY / this.scale - rect.top / this.scale;
+    const currentX = Math.floor(
+      e.clientX / this.scale - rect.left / this.scale
+    );
+    const currentY = Math.floor(e.clientY / this.scale - rect.top / this.scale);
+
+    if (this.mode === 'fill') {
+      this.saveToHistory();
+      canvas?.classList.add('filling');
+      this.floodFill(currentX, currentY);
+      canvas?.classList.remove('filling');
+      return;
+    }
+
+    if (this.mode === 'line' && this.ctx) {
+      this.saveToHistory();
+      this.isDrawing = true;
+      canvas?.classList.add('line');
+      this.startX = currentX;
+      this.startY = currentY;
+      // Store the original state when starting a line
+      this.originalState = this.ctx.getImageData(0, 0, this.width, this.height);
+      return;
+    }
+
+    // Original drawing/delete mode handling
+    this.saveToHistory();
+    this.isDrawing = true;
+    canvas?.classList.add(this.mode === 'draw' ? 'drawing' : 'deleting');
+    this.lastX = currentX;
+    this.lastY = currentY;
 
     if (this.ctx) {
-      // Change the composite operation based on mode
       this.ctx.globalCompositeOperation =
         this.mode === 'draw' ? 'source-over' : 'destination-out';
     }
   }
 
-  handleMouseUp() {
+  handleMouseUp(e: MouseEvent) {
+    if (this.mode === 'line' && this.isDrawing && this.ctx) {
+      const canvas = this.renderRoot.querySelector(
+        'canvas'
+      ) as HTMLCanvasElement;
+      const rect = canvas.getBoundingClientRect();
+      const currentX = Math.floor(
+        e.clientX / this.scale - rect.left / this.scale
+      );
+      const currentY = Math.floor(
+        e.clientY / this.scale - rect.top / this.scale
+      );
+
+      // Restore the original state one last time
+      if (this.originalState) {
+        this.ctx.putImageData(this.originalState, 0, 0);
+      }
+
+      // Draw the final line
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.startX, this.startY);
+      this.ctx.lineTo(currentX, currentY);
+      this.ctx.strokeStyle = this.onColor;
+      this.ctx.lineWidth = this.brushSize;
+      this.ctx.lineCap = 'round';
+      this.ctx.stroke();
+
+      // Clear the original state
+      this.originalState = null;
+    }
+
     this.isDrawing = false;
     const canvas = this.renderRoot.querySelector('canvas') as HTMLCanvasElement;
     canvas?.classList.remove('drawing');
     canvas?.classList.remove('deleting');
+    canvas?.classList.remove('line');
     this.ctx?.beginPath();
   }
 
   handleMouseMove(e: MouseEvent) {
     if (!this.isDrawing || !this.ctx) return;
 
+    if (this.mode === 'line' && this.originalState) {
+      const canvas = this.renderRoot.querySelector(
+        'canvas'
+      ) as HTMLCanvasElement;
+      const rect = canvas.getBoundingClientRect();
+      const currentX = e.clientX / this.scale - rect.left / this.scale;
+      const currentY = e.clientY / this.scale - rect.top / this.scale;
+
+      // Restore the original state
+      this.ctx.putImageData(this.originalState, 0, 0);
+
+      // Draw the preview line directly on the main canvas
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.startX, this.startY);
+      this.ctx.lineTo(currentX, currentY);
+      this.ctx.strokeStyle = this.onColor;
+      this.ctx.lineWidth = this.brushSize;
+      this.ctx.lineCap = 'round';
+      this.ctx.stroke();
+      return;
+    }
+
+    // Original drawing/delete mode handling
     const canvas = this.renderRoot.querySelector('canvas') as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
     // Adjust coordinates for scale
@@ -228,8 +325,10 @@ export class CanvasComponent extends LitElement {
     const canvas = this.renderRoot.querySelector('canvas') as HTMLCanvasElement;
     canvas?.classList.remove('drawing');
     canvas?.classList.remove('deleting');
+    canvas?.classList.remove('line');
     this.isDrawing = false;
     this.ctx?.beginPath();
+    this.originalState = null;
   }
 
   handleMouseEnter(e: MouseEvent) {
@@ -310,6 +409,63 @@ export class CanvasComponent extends LitElement {
       // Restore the previous state
       this.ctx.putImageData(previousState, 0, 0);
     }
+  }
+
+  private floodFill(startX: number, startY: number) {
+    if (!this.ctx) return;
+
+    const imageData = this.ctx.getImageData(0, 0, this.width, this.height);
+    const pixels = imageData.data;
+
+    // Get target color (the color we're replacing)
+    const startPos = (startY * this.width + startX) * 4;
+    const targetR = pixels[startPos];
+    const targetG = pixels[startPos + 1];
+    const targetB = pixels[startPos + 2];
+    const targetA = pixels[startPos + 3];
+
+    // Parse fill color
+    const fillR = parseInt(this.onColor.slice(1, 3), 16);
+    const fillG = parseInt(this.onColor.slice(3, 5), 16);
+    const fillB = parseInt(this.onColor.slice(5, 7), 16);
+    const fillA = 255;
+
+    // Don't fill if target is the same as fill color
+    if (
+      targetR === fillR &&
+      targetG === fillG &&
+      targetB === fillB &&
+      targetA === fillA
+    ) {
+      return;
+    }
+
+    const stack: [number, number][] = [[startX, startY]];
+
+    while (stack.length) {
+      const [x, y] = stack.pop()!;
+      const pos = (y * this.width + x) * 4;
+
+      if (x < 0 || x >= this.width || y < 0 || y >= this.height) continue;
+      if (
+        pixels[pos] !== targetR ||
+        pixels[pos + 1] !== targetG ||
+        pixels[pos + 2] !== targetB ||
+        pixels[pos + 3] !== targetA
+      )
+        continue;
+
+      // Fill the pixel
+      pixels[pos] = fillR;
+      pixels[pos + 1] = fillG;
+      pixels[pos + 2] = fillB;
+      pixels[pos + 3] = fillA;
+
+      // Add adjacent pixels to stack
+      stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+
+    this.ctx.putImageData(imageData, 0, 0);
   }
 
   render() {

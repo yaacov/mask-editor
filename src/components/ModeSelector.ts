@@ -2,12 +2,14 @@ import { LitElement, html, css } from 'lit';
 import { property } from 'lit/decorators.js';
 
 export class ModeSelector extends LitElement {
-  @property({ type: String }) mode: 'draw' | 'delete' = 'draw';
+  @property({ type: String }) mode: 'draw' | 'delete' | 'fill' | 'line' =
+    'draw';
 
   static styles = css`
     :host {
       display: flex;
       align-items: center;
+      gap: 8px;
     }
     .mode-button {
       display: flex;
@@ -26,6 +28,7 @@ export class ModeSelector extends LitElement {
       background: #f0f0f0;
     }
     .mode-button.active {
+      background: #e0e0e0;
       outline: 2px solid #666;
       outline-offset: 2px;
     }
@@ -34,16 +37,37 @@ export class ModeSelector extends LitElement {
   render() {
     return html`
       <button
+        class="mode-button ${this.mode === 'draw' ? 'active' : ''}"
+        @click=${() => this.handleClick('draw')}
+        title="Draw"
+      >
+        ✏️
+      </button>
+      <button
+        class="mode-button ${this.mode === 'line' ? 'active' : ''}"
+        @click=${() => this.handleClick('line')}
+        title="Line"
+      >
+        📏
+      </button>
+      <button
+        class="mode-button ${this.mode === 'fill' ? 'active' : ''}"
+        @click=${() => this.handleClick('fill')}
+        title="Fill"
+      >
+        🪣
+      </button>
+      <button
         class="mode-button ${this.mode === 'delete' ? 'active' : ''}"
-        @click=${this.handleClick}
+        @click=${() => this.handleClick('delete')}
+        title="Erase"
       >
         ❌
       </button>
     `;
   }
 
-  private handleClick() {
-    const newMode = this.mode === 'draw' ? 'delete' : 'draw';
+  private handleClick(newMode: 'draw' | 'delete' | 'fill' | 'line') {
     this.dispatchEvent(new CustomEvent('mode-changed', { detail: newMode }));
   }
 }
