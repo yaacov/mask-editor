@@ -4,6 +4,8 @@ A web-based image mask editor built with Lit Elements and TypeScript. This tool 
 
 Masks are binary or grayscale images that define which pixels belong to the foreground (region of interest) and which belong to the background, making them invaluable for both automated processing and human analysis.
 
+[Demo](https://yaacov.github.io/mask-editor/)
+
 ## Use Cases
 
 Image masks are essential tools in various fields:
