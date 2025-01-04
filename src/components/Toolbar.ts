@@ -22,16 +22,34 @@ export class ToolbarComponent extends LitElement {
   @property({ type: Number }) initialScale = 0.5;
   @property({ type: Number }) initiaBrashSize = 8;
 
+  @property({ type: Number }) posX = 2;
+  @property({ type: Number }) posY = 2;
+  private isDragging = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+
+  // Add bound event handlers
+  private boundHandleDragMove = this.handleDragMove.bind(this);
+  private boundHandleDragEnd = this.handleDragEnd.bind(this);
+
   static styles = css`
     :host {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
         Oxygen, Ubuntu, sans-serif;
       font-size: 14px;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      width: fit-content;
+      transform: translate(var(--toolbar-left, 0px), var(--toolbar-top, 0px));
+      cursor: grab;
+      background: white;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       z-index: 1000;
+    }
+    :host(.dragging) {
+      cursor: grabbing;
     }
     div {
       display: flex;
@@ -68,11 +86,18 @@ export class ToolbarComponent extends LitElement {
     this.alpha = this.initialAlpha;
     this.scale = this.initialScale;
     this.brushSize = this.initiaBrashSize;
+
+    // Initialize position CSS vars
+    this.style.setProperty('--toolbar-left', `${this.posX}px`);
+    this.style.setProperty('--toolbar-top', `${this.posY}px`);
   }
 
   render() {
     return html`
-      <div>
+      <div
+        @mousedown=${this.handleDragStart}
+        @touchstart=${this.handleDragStart}
+      >
         <brush-size-selector
           .brushSize=${this.brushSize}
           @brush-size-changed=${this.handleBrushSizeChanged}
@@ -101,6 +126,57 @@ export class ToolbarComponent extends LitElement {
         <toolbar-buttons></toolbar-buttons>
       </div>
     `;
+  }
+
+  handleDragStart(e: MouseEvent | TouchEvent) {
+    const event = 'touches' in e ? e.touches[0] : e;
+    this.isDragging = true;
+    this.classList.add('dragging');
+    this.dragStartX = event.clientX - this.posX;
+    this.dragStartY = event.clientY - this.posY;
+
+    window.addEventListener('mousemove', this.boundHandleDragMove, {
+      passive: false,
+    });
+    window.addEventListener('touchmove', this.boundHandleDragMove, {
+      passive: false,
+    });
+    window.addEventListener('mouseup', this.boundHandleDragEnd);
+    window.addEventListener('touchend', this.boundHandleDragEnd);
+  }
+
+  handleDragMove(e: MouseEvent | TouchEvent) {
+    if (!this.isDragging) return;
+
+    e.preventDefault(); // Prevent scrolling on touch devices
+    const event = 'touches' in e ? e.touches[0] : e;
+
+    const newX = event.clientX - this.dragStartX;
+    const newY = event.clientY - this.dragStartY;
+
+    // Ensure toolbar stays within viewport
+    this.posX = Math.max(
+      0,
+      Math.min(window.innerWidth - this.clientWidth, newX)
+    );
+    this.posY = Math.max(
+      0,
+      Math.min(window.innerHeight - this.clientHeight, newY)
+    );
+
+    this.style.setProperty('--toolbar-left', `${this.posX}px`);
+    this.style.setProperty('--toolbar-top', `${this.posY}px`);
+  }
+
+  handleDragEnd() {
+    this.isDragging = false;
+    this.classList.remove('dragging');
+
+    // Remove event listeners using bound handlers
+    window.removeEventListener('mousemove', this.boundHandleDragMove);
+    window.removeEventListener('touchmove', this.boundHandleDragMove);
+    window.removeEventListener('mouseup', this.boundHandleDragEnd);
+    window.removeEventListener('touchend', this.boundHandleDragEnd);
   }
 
   handleModeChange(e: CustomEvent) {

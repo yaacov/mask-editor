@@ -19,15 +19,10 @@ export class AppContainer extends LitElement {
   static styles = css`
     :host {
       display: block;
-      margin: 20px auto;
-      padding-top: 70px; /* Space for the fixed toolbar */
+      margin: 10px auto;
     }
 
     toolbar-component {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
       z-index: 1000;
       background-color: #f5f5f5;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -36,6 +31,7 @@ export class AppContainer extends LitElement {
 
     image-canvas {
       position: relative;
+      padding-top: 50px;
       z-index: 1;
     }
   `;
