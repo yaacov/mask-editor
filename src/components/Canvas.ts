@@ -74,7 +74,7 @@ export class CanvasComponent extends LitElement {
     }
     canvas.line {
       cursor:
-        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><line x1="8" y1="8" x2="24" y2="24" stroke="black" stroke-width="2"/><circle cx="16" cy="16" r="1" fill="black"/></svg>')
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8" fill="rgba(0,0,0,0.2)" stroke="black" stroke-width="2"/><circle cx="16" cy="16" r="1" fill="black"/></svg>')
           16 16,
         crosshair;
     }
