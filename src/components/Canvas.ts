@@ -1,5 +1,11 @@
 import { LitElement, html, css } from 'lit';
 import { property } from 'lit/decorators.js';
+import {
+  extractFilename,
+  processImageData,
+  convertToBlackAndWhite,
+} from '../drawing/image';
+import { drawLine, floodFill } from '../drawing/drawing';
 
 export class CanvasComponent extends LitElement {
   @property({ type: Number }) brushSize = 10;
@@ -104,17 +110,10 @@ export class CanvasComponent extends LitElement {
 
   private loadBackgroundImage() {
     if (!this.backgroundImage) return;
-
-    // Handle filename extraction
-    if (this.backgroundImage.startsWith('data:')) {
-      // For base64 data URLs, use suggested name or default
-      this.filename = this.suggestedFilename || 'mask-image';
-    } else {
-      // For regular URLs, extract filename
-      const urlParts = this.backgroundImage.split('/');
-      const fullFilename = urlParts[urlParts.length - 1];
-      this.filename = fullFilename.split('.')[0]; // Remove extension
-    }
+    this.filename = extractFilename(
+      this.backgroundImage,
+      this.suggestedFilename
+    );
 
     const img = new Image();
     img.onload = () => {
@@ -145,30 +144,7 @@ export class CanvasComponent extends LitElement {
 
           // Get the image data
           const imageData = tempCtx.getImageData(0, 0, this.width, this.height);
-          const data = imageData.data;
-
-          // Process each pixel
-          for (let i = 0; i < data.length; i += 4) {
-            // If the pixel has any color
-            if (data[i] > 125) {
-              data[i] =
-                this.onColor.length === 7
-                  ? parseInt(this.onColor.slice(1, 3), 16)
-                  : 0; // R
-              data[i + 1] =
-                this.onColor.length === 7
-                  ? parseInt(this.onColor.slice(3, 5), 16)
-                  : 0; // G
-              data[i + 2] =
-                this.onColor.length === 7
-                  ? parseInt(this.onColor.slice(5, 7), 16)
-                  : 0; // B
-              data[i + 3] = 255; // A (fully opaque)
-            } else {
-              // If pixel is black, make it transparent
-              data[i + 3] = 0; // A (fully transparent)
-            }
-          }
+          processImageData(imageData, this.onColor);
 
           // Put the processed image data on the main canvas
           tempCtx.putImageData(imageData, 0, 0);
@@ -208,7 +184,16 @@ export class CanvasComponent extends LitElement {
     if (this.mode === 'fill') {
       this.saveToHistory();
       canvas?.classList.add('filling');
-      this.floodFill(currentX, currentY);
+      if (this.ctx) {
+        floodFill(
+          this.ctx,
+          currentX,
+          currentY,
+          this.onColor,
+          this.width,
+          this.height
+        );
+      }
       canvas?.classList.remove('filling');
       return;
     }
@@ -256,13 +241,13 @@ export class CanvasComponent extends LitElement {
       }
 
       // Draw the final line
-      this.ctx.beginPath();
-      this.ctx.moveTo(this.startX, this.startY);
-      this.ctx.lineTo(currentX, currentY);
-      this.ctx.strokeStyle = this.onColor;
-      this.ctx.lineWidth = this.brushSize;
-      this.ctx.lineCap = 'round';
-      this.ctx.stroke();
+      drawLine(
+        this.ctx,
+        { x: this.startX, y: this.startY },
+        { x: currentX, y: currentY },
+        this.onColor,
+        this.brushSize
+      );
 
       // Clear the original state
       this.originalState = null;
@@ -279,43 +264,30 @@ export class CanvasComponent extends LitElement {
   handleMouseMove(e: MouseEvent) {
     if (!this.isDrawing || !this.ctx) return;
 
-    if (this.mode === 'line' && this.originalState) {
-      const canvas = this.renderRoot.querySelector(
-        'canvas'
-      ) as HTMLCanvasElement;
-      const rect = canvas.getBoundingClientRect();
-      const currentX = e.clientX / this.scale - rect.left / this.scale;
-      const currentY = e.clientY / this.scale - rect.top / this.scale;
-
-      // Restore the original state
-      this.ctx.putImageData(this.originalState, 0, 0);
-
-      // Draw the preview line directly on the main canvas
-      this.ctx.beginPath();
-      this.ctx.moveTo(this.startX, this.startY);
-      this.ctx.lineTo(currentX, currentY);
-      this.ctx.strokeStyle = this.onColor;
-      this.ctx.lineWidth = this.brushSize;
-      this.ctx.lineCap = 'round';
-      this.ctx.stroke();
-      return;
-    }
-
-    // Original drawing/delete mode handling
     const canvas = this.renderRoot.querySelector('canvas') as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
-    // Adjust coordinates for scale
     const currentX = e.clientX / this.scale - rect.left / this.scale;
     const currentY = e.clientY / this.scale - rect.top / this.scale;
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(currentX, currentY);
-    // In delete mode, we use black color but with 'destination-out' composite operation
-    this.ctx.strokeStyle = this.mode === 'draw' ? this.onColor : '#000000';
-    this.ctx.lineWidth = this.brushSize;
-    this.ctx.lineCap = 'round';
-    this.ctx.stroke();
+    if (this.mode === 'line' && this.originalState) {
+      this.ctx.putImageData(this.originalState, 0, 0);
+      drawLine(
+        this.ctx,
+        { x: this.startX, y: this.startY },
+        { x: currentX, y: currentY },
+        this.onColor,
+        this.brushSize
+      );
+      return;
+    }
+
+    drawLine(
+      this.ctx,
+      { x: this.lastX, y: this.lastY },
+      { x: currentX, y: currentY },
+      this.mode === 'draw' ? this.onColor : '#000000',
+      this.brushSize
+    );
 
     this.lastX = currentX;
     this.lastY = currentY;
@@ -351,18 +323,7 @@ export class CanvasComponent extends LitElement {
 
       // Get the image data
       const imageData = tempCtx.getImageData(0, 0, this.width, this.height);
-      const data = imageData.data;
-
-      // Convert to black and white based on alpha
-      for (let i = 0; i < data.length; i += 4) {
-        const alpha = data[i + 3];
-        // If pixel has any opacity, make it white (255), otherwise black (0)
-        const value = alpha > 0 ? 255 : 0;
-        data[i] = value; // R
-        data[i + 1] = value; // G
-        data[i + 2] = value; // B
-        data[i + 3] = value; // A (fully opaque)
-      }
+      convertToBlackAndWhite(imageData);
 
       // Put the modified image data back
       tempCtx.putImageData(imageData, 0, 0);
@@ -409,63 +370,6 @@ export class CanvasComponent extends LitElement {
       // Restore the previous state
       this.ctx.putImageData(previousState, 0, 0);
     }
-  }
-
-  private floodFill(startX: number, startY: number) {
-    if (!this.ctx) return;
-
-    const imageData = this.ctx.getImageData(0, 0, this.width, this.height);
-    const pixels = imageData.data;
-
-    // Get target color (the color we're replacing)
-    const startPos = (startY * this.width + startX) * 4;
-    const targetR = pixels[startPos];
-    const targetG = pixels[startPos + 1];
-    const targetB = pixels[startPos + 2];
-    const targetA = pixels[startPos + 3];
-
-    // Parse fill color
-    const fillR = parseInt(this.onColor.slice(1, 3), 16);
-    const fillG = parseInt(this.onColor.slice(3, 5), 16);
-    const fillB = parseInt(this.onColor.slice(5, 7), 16);
-    const fillA = 255;
-
-    // Don't fill if target is the same as fill color
-    if (
-      targetR === fillR &&
-      targetG === fillG &&
-      targetB === fillB &&
-      targetA === fillA
-    ) {
-      return;
-    }
-
-    const stack: [number, number][] = [[startX, startY]];
-
-    while (stack.length) {
-      const [x, y] = stack.pop()!;
-      const pos = (y * this.width + x) * 4;
-
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) continue;
-      if (
-        pixels[pos] !== targetR ||
-        pixels[pos + 1] !== targetG ||
-        pixels[pos + 2] !== targetB ||
-        pixels[pos + 3] !== targetA
-      )
-        continue;
-
-      // Fill the pixel
-      pixels[pos] = fillR;
-      pixels[pos + 1] = fillG;
-      pixels[pos + 2] = fillB;
-      pixels[pos + 3] = fillA;
-
-      // Add adjacent pixels to stack
-      stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
   }
 
   render() {
