@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
-import './Toolbar';
-import './Canvas';
+import './ImageToolbar';
+import './ImageCanvas';
 
 export class AppContainer extends LitElement {
   @property({ type: Number }) brushSize = 8;
@@ -22,7 +22,7 @@ export class AppContainer extends LitElement {
       margin: 10px auto;
     }
 
-    toolbar-component {
+    image-toolbar {
       z-index: 1000;
       background-color: #f5f5f5;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -109,7 +109,7 @@ export class AppContainer extends LitElement {
 
   render() {
     return html`
-      <toolbar-component
+      <image-toolbar
         .initiaBrashSize=${this.brushSize}
         .initialColor=${this.onColor}
         .initialAlpha=${this.alpha}
@@ -124,7 +124,7 @@ export class AppContainer extends LitElement {
         @save-request=${this.handleSaveRequest}
         @clear-mask=${this.handleClearMask}
         @reset-mask=${this.handleResetMask}
-      ></toolbar-component>
+      ></image-toolbar>
       <image-canvas
         brushSize=${this.brushSize}
         onColor=${this.onColor}

@@ -8,7 +8,7 @@ import './ModeSelector';
 import './ScaleSelector';
 import './ToolbarButtons';
 
-export class ToolbarComponent extends LitElement {
+export class ImageToolbar extends LitElement {
   @property({ type: Number }) brushSize = 8;
   @property({ type: String }) onColor = '#ff0000';
   @property({ type: Number }) alpha = 0.5;
@@ -209,4 +209,4 @@ export class ToolbarComponent extends LitElement {
   }
 }
 
-customElements.define('toolbar-component', ToolbarComponent);
+customElements.define('image-toolbar', ImageToolbar);

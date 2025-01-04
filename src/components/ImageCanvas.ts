@@ -7,7 +7,7 @@ import {
 } from '../drawing/image';
 import { drawLine, floodFill } from '../drawing/drawing';
 
-export class CanvasComponent extends LitElement {
+export class ImageCanvas extends LitElement {
   @property({ type: Number }) brushSize = 10;
   @property({ type: String }) onColor = '#000000';
   @property({ type: Boolean }) isDrawing = false;
@@ -396,4 +396,4 @@ export class CanvasComponent extends LitElement {
   }
 }
 
-customElements.define('image-canvas', CanvasComponent);
+customElements.define('image-canvas', ImageCanvas);
