@@ -50,7 +50,6 @@ export class BrushSizeSelector extends LitElement {
   }
 
   render() {
-    console.log(this.brushSize);
     return html`
       <div class="size-buttons">
         ${this.sizes.map(

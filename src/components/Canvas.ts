@@ -105,6 +105,17 @@ export class CanvasComponent extends LitElement {
   private loadBackgroundImage() {
     if (!this.backgroundImage) return;
 
+    // Handle filename extraction
+    if (this.backgroundImage.startsWith('data:')) {
+      // For base64 data URLs, use suggested name or default
+      this.filename = this.suggestedFilename || 'mask-image';
+    } else {
+      // For regular URLs, extract filename
+      const urlParts = this.backgroundImage.split('/');
+      const fullFilename = urlParts[urlParts.length - 1];
+      this.filename = fullFilename.split('.')[0]; // Remove extension
+    }
+
     const img = new Image();
     img.onload = () => {
       this.width = img.width;
@@ -118,17 +129,6 @@ export class CanvasComponent extends LitElement {
 
   private initImage() {
     if (!this.image || !this.ctx) return;
-
-    // Handle filename extraction
-    if (this.image.startsWith('data:')) {
-      // For base64 data URLs, use suggested name or default
-      this.filename = this.suggestedFilename || 'mask-image';
-    } else {
-      // For regular URLs, extract filename
-      const urlParts = this.image.split('/');
-      const fullFilename = urlParts[urlParts.length - 1];
-      this.filename = fullFilename.split('.')[0]; // Remove extension
-    }
 
     const img = new Image();
     img.onload = () => {

@@ -80,13 +80,13 @@ export class AppContainer extends LitElement {
   }
 
   handleImageUpload(e: CustomEvent) {
+    this.suggestedFilename = e.detail.filename || '';
     this.currentImage = e.detail.imageData;
     this.requestUpdate();
   }
 
   handleMaskUpload(e: CustomEvent) {
     this.currentMask = e.detail.imageData;
-    this.suggestedFilename = e.detail.filename || '';
     this.requestUpdate();
   }
 
