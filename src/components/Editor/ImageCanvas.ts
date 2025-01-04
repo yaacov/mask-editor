@@ -179,13 +179,12 @@ export class ImageCanvas extends LitElement {
     const currentX = Math.floor(
       e.clientX / this.scale - rect.left / this.scale
     );
-    const currentY = Math.floor(
-      e.clientY / this.scale - rect.top / this.scale
-    );
+    const currentY = Math.floor(e.clientY / this.scale - rect.top / this.scale);
 
     if (this.ctx) {
       // Set the composite operation based on mode
-      this.ctx.globalCompositeOperation = this.mode === 'delete' ? 'destination-out' : 'source-over';
+      this.ctx.globalCompositeOperation =
+        this.mode === 'delete' ? 'destination-out' : 'source-over';
     }
 
     if (this.mode === 'fill' && this.ctx) {
@@ -269,7 +268,8 @@ export class ImageCanvas extends LitElement {
     const currentY = e.clientY / this.scale - rect.top / this.scale;
 
     // Set the composite operation based on mode
-    this.ctx.globalCompositeOperation = this.mode === 'delete' ? 'destination-out' : 'source-over';
+    this.ctx.globalCompositeOperation =
+      this.mode === 'delete' ? 'destination-out' : 'source-over';
 
     if (this.mode === 'line' && this.originalState) {
       this.ctx.putImageData(this.originalState, 0, 0);
@@ -342,7 +342,7 @@ export class ImageCanvas extends LitElement {
 
   redrawMask() {
     if (!this.ctx) return;
-    this.ctx.globalCompositeOperation = 'source-over';  // Reset composite operation
+    this.ctx.globalCompositeOperation = 'source-over'; // Reset composite operation
     this.clearCanvas();
     this.initImage();
   }
