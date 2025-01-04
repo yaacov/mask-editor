@@ -9,7 +9,7 @@ import './ScaleSelector';
 import './ToolbarButtons';
 
 export class ToolbarComponent extends LitElement {
-  @property({ type: Number }) brushSize = 10;
+  @property({ type: Number }) brushSize = 8;
   @property({ type: String }) onColor = '#ff0000';
   @property({ type: Number }) alpha = 0.5;
   @property({ type: String }) mode: 'draw' | 'delete' = 'draw';
@@ -20,6 +20,7 @@ export class ToolbarComponent extends LitElement {
   @property({ type: String }) initialColor = '#ff0000';
   @property({ type: Number }) initialAlpha = 0.5;
   @property({ type: Number }) initialScale = 0.5;
+  @property({ type: Number }) initiaBrashSize = 8;
 
   static styles = css`
     :host {
@@ -35,7 +36,13 @@ export class ToolbarComponent extends LitElement {
     div {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 10px;
+    }
+    .divider {
+      height: 24px;
+      width: 1px;
+      background-color: #ccc;
+      margin: 0 5px;
     }
     .alpha-slider {
       display: flex;
@@ -60,6 +67,7 @@ export class ToolbarComponent extends LitElement {
     this.onColor = this.initialColor;
     this.alpha = this.initialAlpha;
     this.scale = this.initialScale;
+    this.brushSize = this.initiaBrashSize;
   }
 
   render() {
@@ -69,22 +77,27 @@ export class ToolbarComponent extends LitElement {
           .brushSize=${this.brushSize}
           @brush-size-changed=${this.handleBrushSizeChanged}
         ></brush-size-selector>
+        <div class="divider"></div>
         <color-picker
           .value=${this.onColor}
           @color-changed=${this.handleColorChanged}
         ></color-picker>
+        <div class="divider"></div>
         <mode-selector
           .mode=${this.mode}
           @mode-changed=${this.handleModeChange}
         ></mode-selector>
+        <div class="divider"></div>
         <alpha-selector
           .alpha=${this.alpha}
           @alpha-changed=${this.handleAlphaChanged}
         ></alpha-selector>
+        <div class="divider"></div>
         <scale-selector
           .scale=${this.scale}
           @scale-changed=${this.handleScaleChanged}
         ></scale-selector>
+        <div class="divider"></div>
         <toolbar-buttons></toolbar-buttons>
       </div>
     `;

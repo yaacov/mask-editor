@@ -1,56 +1,143 @@
 import { LitElement, html, css } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 export class ToolbarButtons extends LitElement {
   @property({ type: String }) imageFileName = '';
   @property({ type: String }) maskFileName = '';
+  @state() private isDropdownOpen = false;
 
   static styles = css`
     .toolbar {
+      position: relative;
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 8px;
     }
+
+    .kebab-button {
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+      border-radius: 4px;
+    }
+
+    .kebab-button:hover {
+      background: #f5f5f5;
+    }
+
+    .kebab-dot {
+      width: 4px;
+      height: 4px;
+      background: #333;
+      border-radius: 50%;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown.open {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: none;
+      color: #333;
+    }
+
+    .dropdown-item:hover {
+      background: #f5f5f5;
+    }
+
     input[type='file'] {
       display: none;
     }
-    .button {
-      padding: 8px 16px;
-      border-radius: 4px;
+
+    .dropdown-separator {
+      height: 1px;
+      background-color: #ddd;
+      margin: 4px 0;
+    }
+
+    .upload-button {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 8px 12px;
       cursor: pointer;
-      border: 1px solid #007bff;
-      color: #007bff;
-      background: transparent;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
     }
-    .button:hover {
-      background: #f0f8ff;
-    }
-    .button.primary {
-      background: #007bff;
-      color: white;
-      border: none;
-    }
-    .button.primary:hover {
-      background: #0056b3;
-    }
-    .button.danger {
-      color: #dc3545;
-      border-color: #dc3545;
-    }
-    .button.danger:hover {
-      background: #fff5f5;
+
+    .upload-button:hover {
+      background: #f5f5f5;
+      border-color: #ccc;
     }
   `;
 
   render() {
     return html`
       <div class="toolbar">
-        <button class="button danger" @click=${this.handleClearClick}>
-          Clear Mask
+        <button
+          class="upload-button"
+          @click=${() => this.handleUploadClick('image')}
+        >
+          Upload Image
         </button>
-        <button class="button danger" @click=${this.handleResetClick}>
-          Reset Mask
+        <button class="kebab-button" @click=${this.toggleDropdown}>
+          <div class="kebab-dot"></div>
+          <div class="kebab-dot"></div>
+          <div class="kebab-dot"></div>
         </button>
+
+        <div class="dropdown ${this.isDropdownOpen ? 'open' : ''}">
+          <button
+            class="dropdown-item"
+            @click=${() => this.handleUploadClick('image')}
+          >
+            Upload Image
+          </button>
+          <button
+            class="dropdown-item"
+            @click=${() => this.handleUploadClick('mask')}
+          >
+            Upload Mask
+          </button>
+          <div class="dropdown-separator"></div>
+
+          <button class="dropdown-item" @click=${this.handleClearClick}>
+            Clear Mask
+          </button>
+          <button class="dropdown-item" @click=${this.handleResetClick}>
+            Reset Mask
+          </button>
+          <div class="dropdown-separator"></div>
+
+          <button class="dropdown-item" @click=${this.handleSaveClick}>
+            Save Mask
+          </button>
+        </div>
+
         <input
           type="file"
           id="imageFileInput"
@@ -63,17 +150,30 @@ export class ToolbarButtons extends LitElement {
           accept="image/*"
           @change=${(e: Event) => this.handleFileSelect(e, 'mask')}
         />
-        <button class="button" @click=${() => this.handleUploadClick('image')}>
-          Upload Image
-        </button>
-        <button class="button" @click=${() => this.handleUploadClick('mask')}>
-          Upload Mask
-        </button>
-        <button class="button primary" @click=${this.handleSaveClick}>
-          Save Mask
-        </button>
       </div>
     `;
+  }
+
+  private toggleDropdown = (e: Event) => {
+    e.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
+
+    if (this.isDropdownOpen) {
+      // Add click outside listener
+      setTimeout(() => {
+        window.addEventListener('click', this.closeDropdown);
+      }, 0);
+    }
+  };
+
+  private closeDropdown = () => {
+    this.isDropdownOpen = false;
+    window.removeEventListener('click', this.closeDropdown);
+  };
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('click', this.closeDropdown);
   }
 
   private handleFileSelect(event: Event, type: 'image' | 'mask') {

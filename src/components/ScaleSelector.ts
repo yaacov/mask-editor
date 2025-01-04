@@ -22,9 +22,9 @@ export class ScaleSelector extends LitElement {
 
   render() {
     return html`
-      <label for="scale-select">Scale:</label>
       <select
         id="scale-select"
+        title="Select zoom level"
         @change=${this.handleChange}
         .value=${this.scale.toString()}
       >

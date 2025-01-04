@@ -48,12 +48,12 @@ export class AlphaSelector extends LitElement {
   render() {
     return html`
       <div class="alpha-buttons">
-        <label>Opacity:</label>
         ${this.alphaValues.map(
           (value) => html`
             <button
               class="alpha-button ${value === this.alpha ? 'selected' : ''}"
               @click=${() => this.handleAlphaClick(value)}
+              title="${Math.round(value * 100)}% opacity"
             >
               <div class="alpha-fill" style="opacity: ${value}"></div>
             </button>

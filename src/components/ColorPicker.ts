@@ -42,20 +42,17 @@ export class ColorPicker extends LitElement {
 
   render() {
     return html`
-      <label>
-        Color:
-        <div class="color-buttons">
-          ${this.colors.map(
-            (color) => html`
-              <button
-                class="color-button ${color === this.value ? 'selected' : ''}"
-                style="background-color: ${color}"
-                @click=${() => this.handleColorClick(color)}
-              ></button>
-            `
-          )}
-        </div>
-      </label>
+      <div class="color-buttons">
+        ${this.colors.map(
+          (color) => html`
+            <button
+              class="color-button ${color === this.value ? 'selected' : ''}"
+              style="background-color: ${color}"
+              @click=${() => this.handleColorClick(color)}
+            ></button>
+          `
+        )}
+      </div>
     `;
   }
 }

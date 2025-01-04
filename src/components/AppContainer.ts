@@ -5,7 +5,7 @@ import './Toolbar';
 import './Canvas';
 
 export class AppContainer extends LitElement {
-  @property({ type: Number }) brushSize = 10;
+  @property({ type: Number }) brushSize = 8;
   @property({ type: String }) onColor = '#ffff00';
   @property({ type: Number }) alpha = 0.5;
   @property({ type: String }) mode = 'draw'; // Add this line
@@ -114,6 +114,7 @@ export class AppContainer extends LitElement {
   render() {
     return html`
       <toolbar-component
+        .initiaBrashSize=${this.brushSize}
         .initialColor=${this.onColor}
         .initialAlpha=${this.alpha}
         .initialScale=${this.scale}

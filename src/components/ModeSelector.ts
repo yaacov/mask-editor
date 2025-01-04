@@ -32,6 +32,20 @@ export class ModeSelector extends LitElement {
       outline: 2px solid #666;
       outline-offset: 2px;
     }
+    .material-icons {
+      font-family: 'Material Icons';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      color: #333;
+      display: inline-block;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+    }
   `;
 
   render() {
@@ -41,28 +55,28 @@ export class ModeSelector extends LitElement {
         @click=${() => this.handleClick('draw')}
         title="Draw"
       >
-        ✏️
+        <span class="material-icons">gesture</span>
       </button>
       <button
         class="mode-button ${this.mode === 'line' ? 'active' : ''}"
         @click=${() => this.handleClick('line')}
         title="Line"
       >
-        📏
+        <span class="material-icons">show_chart</span>
       </button>
       <button
         class="mode-button ${this.mode === 'fill' ? 'active' : ''}"
         @click=${() => this.handleClick('fill')}
         title="Fill"
       >
-        🪣
+        <span class="material-icons">format_color_fill</span>
       </button>
       <button
         class="mode-button ${this.mode === 'delete' ? 'active' : ''}"
         @click=${() => this.handleClick('delete')}
         title="Erase"
       >
-        ❌
+        <span class="material-icons">close</span>
       </button>
     `;
   }
