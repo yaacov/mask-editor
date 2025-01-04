@@ -4,8 +4,8 @@ import {
   extractFilename,
   processImageData,
   convertToBlackAndWhite,
-} from '../drawing/image';
-import { drawLine, floodFill } from '../drawing/drawing';
+} from '../utils/image';
+import { drawLine, floodFill } from '../utils/drawing';
 
 export class ImageCanvas extends LitElement {
   @property({ type: Number }) brushSize = 10;
