@@ -233,7 +233,7 @@ class DrawingApp(QMainWindow):
             binary_image = ImageProcessor.create_binary_save_image(self.image)
             if binary_image:
                 binary_image.save(file_path)
-                self.has_unsaved_changes = False
+                self.state.has_unsaved_changes = False
                 self.update_window_title()
 
                 # Update the image view with yellow pixels
@@ -259,9 +259,13 @@ class DrawingApp(QMainWindow):
         # Clear undo/redo history before loading new image
         self.undo_manager = UndoManager()
 
-        self.current_filename = item.text()  # Store the filename
-        self.has_unsaved_changes = False
+        # Update filename in both local and state storage
+        self.current_filename = item.text()
+        self.state.current_filename = item.text()
+        
+        self.state.has_unsaved_changes = False
         self.update_window_title()
+        
         bg_filepath = os.path.join(self.input_dir, "inputs", self.current_filename)
         drawing_filepath = os.path.join(
             self.input_dir, "targets", self.current_filename
@@ -442,11 +446,14 @@ class DrawingApp(QMainWindow):
         """Save current state for undo"""
         if self.image:
             self.undo_manager.push(self.image.copy())
-            self.has_unsaved_changes = True
-            self.update_window_title()
+            self.state.has_unsaved_changes = True
 
     def update_window_title(self):
         """Update window title with filename and save status"""
+        if not self.state.current_filename:
+            self.setWindowTitle("Drawing Tool")
+            return
+            
         title = f"Drawing Tool - {self.state.current_filename}"
         if self.state.has_unsaved_changes:
             title += " *"

@@ -119,6 +119,7 @@ class AppState(QObject):
     def current_image(self, image):
         self._current_image = image
         self.image_changed.emit()
+        self.has_unsaved_changes = True
 
     # Background image property
     @property
@@ -129,6 +130,7 @@ class AppState(QObject):
     def background_image(self, image):
         self._background_image = image
         self.image_changed.emit()
+        self.has_unsaved_changes = True
 
     # Current filename property
     @property
