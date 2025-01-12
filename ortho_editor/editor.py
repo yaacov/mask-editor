@@ -20,7 +20,7 @@ def editor():
     app = QApplication(sys.argv)
 
     # Allow CTRL+C to interrupt the Qt event loop
-    timer = app.startTimer(500)
+    app.startTimer(500)
 
     def timerEvent(event):
         app.processEvents()
@@ -31,16 +31,19 @@ def editor():
     window.show()
     return app.exec_()
 
+
 def signal_handler(signum, frame):
     """Handle CTRL+C by closing the Qt application"""
     from PyQt5.QtWidgets import QApplication
 
     QApplication.quit()
 
+
 def main():
     # Set up signal handler for CTRL+C
     signal.signal(signal.SIGINT, signal_handler)
     sys.exit(editor())
+
 
 if __name__ == "__main__":
     main()

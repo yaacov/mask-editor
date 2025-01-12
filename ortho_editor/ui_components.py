@@ -41,7 +41,9 @@ class UIComponents:
 
     def load_material_icons(self):
         """Load Material Icons font"""
-        font_path = os.path.join(os.path.dirname(__file__), "fonts", "MaterialIcons-Regular.ttf")
+        font_path = os.path.join(
+            os.path.dirname(__file__), "fonts", "MaterialIcons-Regular.ttf"
+        )
         font_id = QFontDatabase.addApplicationFont(font_path)
         if font_id != -1:
             self.icon_font = QFont("Material Icons")

@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import QGraphicsView
-from PyQt5.QtGui import QPainter, QPen, QPixmap, QCursor, QTransform
+from PyQt5.QtGui import QPainter, QPen, QPixmap, QCursor, QTransform, QColor
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QPen, QColor
-from .image_processor import ImageProcessor  # Add this import
+from .image_processor import ImageProcessor
 
 
 class CustomGraphicsView(QGraphicsView):
@@ -248,7 +247,7 @@ class CustomGraphicsView(QGraphicsView):
 
     def zoom_out(self):
         """Zoom out by 20%"""
-        self.scale_view(1/1.2)
+        self.scale_view(1 / 1.2)
 
     def zoom_fit(self):
         """Fit view to scene contents"""

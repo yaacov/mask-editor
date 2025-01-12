@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data={
-        'ortho_editor': ['fonts/*.ttf'],
+        "ortho_editor": ["fonts/*.ttf"],
     },
     install_requires=[
         "black",

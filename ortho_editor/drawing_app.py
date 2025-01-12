@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QColorDialog,
 )
-from PyQt5.QtGui import QPixmap, QImage, QColor
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 
 from .custom_graphics_view import CustomGraphicsView
