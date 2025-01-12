@@ -28,8 +28,8 @@ This mask editor serves as a crucial tool in the ORTHO pipeline by:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yaacov/mask-editor.git
-cd mask-editor
+git clone https://github.com/yaacov/ortho-editor.git
+cd ortho-editor
 ```
 
 ## Usage

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="mask-editor",
+    name="ortho-editor",
     version="0.1.0",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "mask-editor=main:main",
+            "ortho-editor=main:main",
         ],
     },
     author="yaacov",
@@ -20,7 +20,7 @@ setup(
     description="ORTHO mask editor tool",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yaacov/mask-editor",
+    url="https://github.com/yaacov/ortho-editor",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
