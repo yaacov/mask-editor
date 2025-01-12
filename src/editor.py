@@ -1,3 +1,4 @@
+import os
 import sys
 import argparse
 from PyQt5.QtWidgets import QApplication
@@ -11,8 +12,8 @@ def main():
     parser = argparse.ArgumentParser(description="Drawing Tool with Smoothing")
     parser.add_argument(
         "--input_dir",
-        default="./results",
-        help="Directory containing input images (default: ./results)",
+        default=os.getenv("ORTHO_RESULTS", "./results"),
+        help="Directory containing input images (default: $ORTHO_RESULTS or ./results)",
     )
     args = parser.parse_args()
 
