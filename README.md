@@ -1,30 +1,29 @@
-# Mask Editor
+# ORTHO Mask Editor
 
-A web-based image mask editor built with Lit Elements and TypeScript. This tool allows users to create, edit, and modify image masks.
+A PyQT5-based mask editor tool for the ORTHO (Old Research Text Hebrew OCR) project. This tool helps create training data for the ORTHO U-Net AI model by allowing users to create and edit image masks of Hebrew text documents.
 
-Masks are binary or grayscale images that define which pixels belong to the foreground (region of interest) and which belong to the background, making them invaluable for both automated processing and human analysis.
+## About ORTHO
 
-[Demo](https://yaacov.github.io/mask-editor/)
+ORTHO (Old Research Text Hebrew OCR) is a project focused on optical character recognition for historical Hebrew texts. The project uses a U-Net architecture for text segmentation and recognition.
 
-## Use Cases
+## Purpose
 
-Image masks are essential tools in various fields:
+This mask editor serves as a crucial tool in the ORTHO pipeline by:
 
-- **Machine Learning & AI**: Creating training data for image segmentation models
-- **Computer Vision**: Defining regions of interest for object detection
-- **Image Processing**: Isolating specific areas for selective editing or analysis
-- **Medical Imaging**: Annotating medical images to highlight areas of interest
-- **Geographic Information Systems (GIS)**: Marking specific regions on satellite imagery
-- **Quality Control**: Highlighting defects or areas requiring inspection
+- Creating binary masks for training data
+- Marking text regions in historical Hebrew documents
+- Preparing ground truth data for the U-Net model
+- Enabling manual correction of automated segmentation results
 
-## Getting Started
+## Installation
 
 ### Prerequisites
 
-- Node.js
-- npm
+- Python 3.6 or higher
+- PyQt5
+- NumPy
 
-### Installation
+### Setup
 
 1. Clone the repository:
 
@@ -33,39 +32,25 @@ git clone https://github.com/yaacov/mask-editor.git
 cd mask-editor
 ```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Start the development server:
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
-
 ## Usage
 
-1. Upload an image using the "Upload Image" button
-2. Upload an existing mask or create a new one
-3. Use the toolbar to:
-   - Adjust brush size
-   - Change mask color
-   - Modify opacity
-   - Switch between draw/erase modes
-   - Adjust zoom level
-4. Draw or edit the mask as needed
-5. Save your work using the save button
+1. Prepare a directory that contains two subdirectories named `inputs` and `targets`.  
+   - `inputs` holds the original images.  
+   - `targets` holds the corresponding mask images (same filenames, same dimensions).
 
-## Development
+2. Install the required dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run format` - Format code using Prettier
+3. Run the application:
+    ```bash
+    python main.py
+    ```
+
+4. When prompted, select your directory with `inputs` and `targets` subdirectories.  
+
+5. A list of files from the `inputs` folder will appear. Choose a file to display the image as the background, then draw or edit the mask on top.
 
 ## License
 
