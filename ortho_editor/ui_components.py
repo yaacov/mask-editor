@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont
+import os
 
 # Material Icons constants
 ICON_FOLDER_OPEN = "\ue2c8"
@@ -40,12 +41,13 @@ class UIComponents:
 
     def load_material_icons(self):
         """Load Material Icons font"""
-        font_id = QFontDatabase.addApplicationFont("fonts/MaterialIcons-Regular.ttf")
+        font_path = os.path.join(os.path.dirname(__file__), "fonts", "MaterialIcons-Regular.ttf")
+        font_id = QFontDatabase.addApplicationFont(font_path)
         if font_id != -1:
             self.icon_font = QFont("Material Icons")
             self.icon_font.setPixelSize(24)
         else:
-            print("Error: Could not load Material Icons font")
+            print(f"Error: Could not load Material Icons font from {font_path}")
             self.icon_font = None
 
     def create_icon_action(self, icon_text, text, shortcut=None, tooltip=None):

@@ -3,3 +3,4 @@ flake8
 PyQt5
 wheel
 build
+twine

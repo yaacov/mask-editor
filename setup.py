@@ -2,9 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="ortho-editor",
-    version="0.1.0",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    version="0.1.13",
+    packages=find_packages(),
+    include_package_data=True,
+    package_data={
+        'ortho_editor': ['fonts/*.ttf'],
+    },
     install_requires=[
         "black",
         "flake8",
@@ -12,7 +15,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "ortho-editor=main:main",
+            "ortho-editor=ortho_editor.editor:main",
         ],
     },
     author="yaacov",

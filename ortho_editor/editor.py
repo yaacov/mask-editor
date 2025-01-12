@@ -1,13 +1,13 @@
 import os
+import signal
 import sys
 import argparse
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
 
-from src.drawing_app import DrawingApp
+from ortho_editor.drawing_app import DrawingApp
 
 
-def main():
+def editor():
     """Main function to initialize and run the drawing application."""
     parser = argparse.ArgumentParser(description="Drawing Tool with Smoothing")
     parser.add_argument(
@@ -30,3 +30,17 @@ def main():
     window = DrawingApp(input_dir=args.input_dir)
     window.show()
     return app.exec_()
+
+def signal_handler(signum, frame):
+    """Handle CTRL+C by closing the Qt application"""
+    from PyQt5.QtWidgets import QApplication
+
+    QApplication.quit()
+
+def main():
+    # Set up signal handler for CTRL+C
+    signal.signal(signal.SIGINT, signal_handler)
+    sys.exit(editor())
+
+if __name__ == "__main__":
+    main()

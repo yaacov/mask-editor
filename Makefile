@@ -11,7 +11,18 @@ lint:
 	flake8 .
 
 package:
-	python setup.py sdist bdist_wheel
+	python -m build
+
+push: package
+	twine upload dist/*
+
+clean:
+	rm -rf dist/
+	rm -rf build/
+	rm -rf *.egg-info
+	find . -type d -name "*.egg-info" -exec rm -rf {} +
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
 
 help:
 	@echo "Available targets:"
@@ -20,3 +31,5 @@ help:
 	@echo "  format   - Format the code using black"
 	@echo "  lint     - Lint the code using flake8"
 	@echo "  package  - Create a pip package"
+	@echo "  push     - Upload package to PyPI using twine"
+	@echo "  clean    - Remove build artifacts and Python cache files"
