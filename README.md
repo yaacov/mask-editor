@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/ortho-editor.svg)](https://pypi.org/project/ortho-editor/)
+
 ## ORTHO Mask Editor
 
 A PyQT5-based mask editor tool for the ORTHO (Old Research Text Hebrew OCR) project. This tool helps create training data for the ORTHO U-Net AI model by allowing users to create and edit image masks of Hebrew text documents.
