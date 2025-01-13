@@ -1,16 +1,16 @@
-# ORTHO Mask Editor
+## ORTHO Mask Editor
 
 A PyQT5-based mask editor tool for the ORTHO (Old Research Text Hebrew OCR) project. This tool helps create training data for the ORTHO U-Net AI model by allowing users to create and edit image masks of Hebrew text documents.
 
-## About ORTHO
+### About ORTHO
 
 [ORTHO (Old Research Text Hebrew OCR)](https://github.com/yaacov/ortho-editor) is a project focused on optical character recognition for historical Hebrew texts. The project uses a U-Net architecture for text segmentation and recognition.
 
-## Screenshot
+### Screenshot
 
 ![ORTHO Mask Editor](docs/ortho-editor.png)
 
-## Purpose
+### Purpose
 
 This mask editor serves as a crucial tool in the ORTHO pipeline by:
 
@@ -19,15 +19,15 @@ This mask editor serves as a crucial tool in the ORTHO pipeline by:
 - Preparing ground truth data for the U-Net model
 - Enabling manual correction of automated segmentation results
 
-## Installation
+### Installation
 
-### Prerequisites
+#### Prerequisites
 
 - Python 3.6 or higher
 - PyQt5
 - NumPy
 
-### Setup
+#### Setup
 
 You can install ORTHO Mask Editor using pip:
 
@@ -44,7 +44,7 @@ git clone https://github.com/yaacov/ortho-editor.git
 cd ortho-editor
 ```
 
-## Usage
+### Usage
 
 1. Prepare a directory that contains two subdirectories named `inputs` and `targets`.  
    - `inputs` holds the original images.  
@@ -64,7 +64,7 @@ cd ortho-editor
 
 5. A list of files from the `inputs` folder will appear. Choose a file to display the image as the background, then draw or edit the mask on top.
 
-## Development
+### Development
 
 The project includes a Makefile with useful commands for development:
 
@@ -80,6 +80,6 @@ make clean    # Remove build artifacts and Python cache files
 
 If you're contributing to the project, make sure to run `make format` and `make lint` before submitting your changes.
 
-## License
+### License
 
 MIT License
