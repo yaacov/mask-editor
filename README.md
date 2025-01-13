@@ -4,7 +4,7 @@ A PyQT5-based mask editor tool for the ORTHO (Old Research Text Hebrew OCR) proj
 
 ## About ORTHO
 
-ORTHO (Old Research Text Hebrew OCR) is a project focused on optical character recognition for historical Hebrew texts. The project uses a U-Net architecture for text segmentation and recognition.
+[ORTHO (Old Research Text Hebrew OCR)](https://github.com/yaacov/ortho-editor) is a project focused on optical character recognition for historical Hebrew texts. The project uses a U-Net architecture for text segmentation and recognition.
 
 ## Screenshot
 
